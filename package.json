@@ -1,0 +1,26 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/src/bot.js",
+    "dev": "tsc --watch --preserveWatchOutput & node --watch dist/src/bot.js",
+    "prisma:generate": "node -r dotenv/config ./node_modules/.bin/prisma generate --no-engine",
+    "prisma:migrate": "node -r dotenv/config ./node_modules/.bin/prisma migrate dev",
+    "prisma:studio": "node -r dotenv/config ./node_modules/.bin/prisma studio",
+    "prisma:push": "node -r dotenv/config ./node_modules/.bin/prisma db push"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "prisma": "^6.19.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "@prisma/extension-accelerate": "^2.0.2",
+    "dotenv": "^17.2.3",
+    "grammy": "^1.38.3",
+    "node-cron": "^4.2.1",
+    "pg": "^8.16.3"
+  }
+}
