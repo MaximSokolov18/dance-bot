@@ -1,0 +1,21 @@
+services:
+  dance-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dance-bot
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    restart: unless-stopped
+    networks:
+      - dance-bot-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  dance-bot-network:
+    driver: bridge
