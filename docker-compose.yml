@@ -8,6 +8,8 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
     restart: unless-stopped
+    ports:
+      - "5555:5555"  # Prisma Studio
     networks:
       - dance-bot-network
     logging:

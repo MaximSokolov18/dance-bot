@@ -35,12 +35,21 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Expose port if needed for webhook
-EXPOSE 3000
+# Copy Prisma schema (needed for Prisma Studio)
+COPY prisma ./prisma
+
+# Copy entrypoint script
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+# Expose ports
+# 3000 for webhook (if needed)
+# 5555 for Prisma Studio
+EXPOSE 3000 5555
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD node -e "console.log('OK')" || exit 1
 
-# Start the bot
-CMD ["npm", "start"]
+# Start the bot and Prisma Studio
+CMD ["./entrypoint.sh"]
