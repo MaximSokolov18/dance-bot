@@ -18,7 +18,7 @@ export const calculateNextPaymentDate =(
     const nextDay = new Date();
     nextDay.setDate(nextDay.getDate() + 1);
 
-    const noLessons = classWeekDays.length <= 0;
+    const noLessons = remainingLessons <= 0;
     if (noLessons) {
         while (!classWeekDays.includes(nextDay.getDay())) {
             nextDay.setDate(nextDay.getDate() + 1);
