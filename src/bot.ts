@@ -2,17 +2,19 @@ import {Bot} from "grammy";
 import cron from "node-cron";
 import prisma from "./db.js";
 import {
-    getTotalLessons,
-    formatSubscriptionType,
     formatDate,
     calculateUsedLessons,
-    formatGroupName,
     calculateNextPaymentDate
 } from "./utils.js";
-import {COMMANDS} from "./constants.js";
+import {COMMANDS, TotalLessonsByType, GroupNameFormatMap, SubscriptionTypeFormatMap} from "./constants.js";
 
+const BOT_TOKEN = process.env.BOT_TOKEN;
 
-const bot = new Bot("8474953308:AAG4-jCmLQrPRThNPUo9thf4ObVporHFlpY");
+if (!BOT_TOKEN) {
+    throw new Error("BOT_TOKEN environment variable is not set. Please add it to your .env file.");
+}
+
+const bot = new Bot(BOT_TOKEN);
 await bot.api.setMyCommands(COMMANDS);
 
 bot.command("start", async (ctx) => {
@@ -86,7 +88,7 @@ bot.command("notify", async (ctx) => {
                     return;
                 }
 
-                const totalLessons = getTotalLessons(subscription.typeOfSubscription);
+                const totalLessons = TotalLessonsByType[subscription.typeOfSubscription] || 0;
                 const usedLessons = calculateUsedLessons(
                     subscription.startDate,
                     subscription.group.classDays,
@@ -150,7 +152,7 @@ bot.command("mysub", async (ctx) => {
         return;
     }
 
-    const totalLessons = getTotalLessons(subscription.typeOfSubscription);
+    const totalLessons = TotalLessonsByType[subscription.typeOfSubscription] || 0;
     const usedLessons = calculateUsedLessons(
         subscription.startDate,
         subscription.group.classDays,
@@ -164,9 +166,9 @@ bot.command("mysub", async (ctx) => {
 
     const message = [
         "🎭 Your Current Subscription:",
-        `Type: ${formatSubscriptionType(subscription.typeOfSubscription)}`,
-        `Group: ${formatGroupName(subscription.group.name)}`,
-        `Classes: ${remainingLessons} of ${totalLessons} remaining`,
+        `Type: ${SubscriptionTypeFormatMap[subscription.typeOfSubscription] || subscription.typeOfSubscription}`,
+        `Group: ${GroupNameFormatMap[subscription.group.name] || subscription.group.name}`,
+        `Lessons: ${remainingLessons} of ${totalLessons} remaining`,
         (subscription.illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${subscription.illnessCount}\n` : ""),
         `Next payment/renewal: ${formatDate(nextPaymentDate)}`,
         `\nClass days: ${subscription.group.classDays.join(", ")}`
