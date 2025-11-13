@@ -49,16 +49,30 @@ notify.command("notify", async (ctx) => {
                     return;
                 }
 
+                // Fetch holidays for accurate calculations
+                const holidays = await prisma.holiday.findMany({
+                    where: {
+                        date: {
+                            gte: subscription.startDate
+                        }
+                    },
+                    orderBy: {
+                        date: 'asc'
+                    }
+                });
+
                 const totalLessons = TotalLessonsByType[subscription.typeOfSubscription] || 0;
                 const usedLessons = calculateUsedLessons(
                     subscription.startDate,
                     subscription.group.classDays,
+                    holidays
                 );
                 const remainingLessons = Math.max(0, totalLessons - usedLessons + subscription.illnessCount);
 
                 const nextPaymentDate = calculateNextPaymentDate(
                     subscription.group.classDays,
                     remainingLessons,
+                    holidays
                 );
 
                 const paymentDate = new Date(nextPaymentDate).getDate();

@@ -12,6 +12,7 @@ export const formatDate = (date: Date): string => {
 export const calculateNextPaymentDate =(
     classDays: Weekday[],
     remainingLessons: number,
+    holidays: Holiday[] = []
 ): Date => {
     const classWeekDays = classDays.map((day) => WeekDayToNumber[day]);
     
@@ -20,7 +21,7 @@ export const calculateNextPaymentDate =(
 
     const noLessons = remainingLessons <= 0;
     if (noLessons) {
-        while (!classWeekDays.includes(nextDay.getDay())) {
+        while (!classWeekDays.includes(nextDay.getDay()) || isDateInHoliday(nextDay, holidays)) {
             nextDay.setDate(nextDay.getDate() + 1);
         }
         return nextDay;
@@ -29,13 +30,13 @@ export const calculateNextPaymentDate =(
     let lessonsToFind = remainingLessons;
     
     while (lessonsToFind > 0) {
-        if (classWeekDays.includes(nextDay.getDay())) {
+        if (classWeekDays.includes(nextDay.getDay()) && !isDateInHoliday(nextDay, holidays)) {
             lessonsToFind--;
         }
         nextDay.setDate(nextDay.getDate() + 1);
     }
     
-    while (!classWeekDays.includes(nextDay.getDay())) {
+    while (!classWeekDays.includes(nextDay.getDay()) || isDateInHoliday(nextDay, holidays)) {
         nextDay.setDate(nextDay.getDate() + 1);
     }
 
@@ -45,7 +46,9 @@ export const calculateNextPaymentDate =(
 export const isDateInHoliday = (date: Date, holidays: Holiday[]): boolean => {
     return holidays.some(holiday => {
         const holidayDate = new Date(holiday.date);
-        return date.getTime() === holidayDate.getTime();
+        return date.getFullYear() === holidayDate.getFullYear() &&
+               date.getMonth() === holidayDate.getMonth() &&
+               date.getDate() === holidayDate.getDate();
     });
 }
 

@@ -1,7 +1,12 @@
-import {Bot} from "grammy/web";
+import {Bot, Context, session, type SessionFlavor} from "grammy/web";
+import {conversations, createConversation, type Conversation, type ConversationFlavor} from "@grammyjs/conversations";
 import prisma from "./db.js";
 import {COMMANDS} from "./constants.js";
-import {mysub, notify} from "./user/index.js";
+import {mysub, notify, feedback, feedbackConversation} from "./user/index.js";
+
+interface SessionData {}
+
+export type MyContext = Context & ConversationFlavor<Context> & SessionFlavor<SessionData>;
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
@@ -9,7 +14,15 @@ if (!BOT_TOKEN) {
     throw new Error("BOT_TOKEN environment variable is not set. Please add it to your .env file.");
 }
 
-const bot = new Bot(BOT_TOKEN);
+const bot = new Bot<MyContext>(BOT_TOKEN);
+
+// Setup session for conversations
+bot.use(session({initial: () => ({})}));
+bot.use(conversations());
+
+// Register conversations
+bot.use(createConversation(feedbackConversation, "feedbackConversation"));
+
 await bot.api.setMyCommands(COMMANDS);
 
 bot.command("start", async (ctx) => {
@@ -43,5 +56,6 @@ bot.command("start", async (ctx) => {
 
 bot.use(notify);
 bot.use(mysub);
+bot.use(feedback);
 
 bot.start();

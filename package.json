@@ -16,6 +16,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@grammyjs/conversations": "^2.1.0",
     "@prisma/client": "^6.19.0",
     "@prisma/extension-accelerate": "^2.0.2",
     "dotenv": "^17.2.3",
