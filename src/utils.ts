@@ -1,4 +1,4 @@
-import type {Weekday} from "@prisma/client";
+import type {Weekday, Holiday} from "@prisma/client";
 import {WeekDayToNumber} from "./constants.js";
 
 export const formatDate = (date: Date): string => {
@@ -42,7 +42,14 @@ export const calculateNextPaymentDate =(
     return nextDay;
 }
 
-export const calculateUsedLessons = (startDate: Date, classDays: Weekday[]): number => {
+export const isDateInHoliday = (date: Date, holidays: Holiday[]): boolean => {
+    return holidays.some(holiday => {
+        const holidayDate = new Date(holiday.date);
+        return date.getTime() === holidayDate.getTime();
+    });
+}
+
+export const calculateUsedLessons = (startDate: Date, classDays: Weekday[], holidays: Holiday[] = []): number => {
     const today = new Date();
     const start = new Date(startDate);
     const classWeekDays = classDays.map((day) => WeekDayToNumber[day]);
@@ -51,7 +58,7 @@ export const calculateUsedLessons = (startDate: Date, classDays: Weekday[]): num
     const currentDay = new Date(start);
     
     while (currentDay <= today) {
-        if (classWeekDays.includes(currentDay.getDay())) {
+        if (classWeekDays.includes(currentDay.getDay()) && !isDateInHoliday(currentDay, holidays)) {
             lessonsOccurred++;
         }
 

@@ -6,6 +6,7 @@ import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../uti
 
 export const notify = new Composer();
 
+// TODO: check notifications scheduling logic
 notify.command("notify", async (ctx) => {
     if (!ctx.from) return;
 

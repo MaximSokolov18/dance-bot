@@ -5,6 +5,9 @@ import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../uti
 
 export const mysub = new Composer();
 
+// TODO: add time in group lessons, handle holidays
+// TODO: check/add abon for 4 lessons on specifyc weekday (e.g., 4 Monday lessons)
+// TODO: add in mysub inf about hodays and notifaction status
 mysub.command("mysub", async (ctx) => {
     if (!ctx.from) return;
 
@@ -35,10 +38,17 @@ mysub.command("mysub", async (ctx) => {
         return;
     }
 
+    const holidays = await prisma.holiday.findMany({
+        orderBy: {
+            date: 'asc'
+        }
+    });
+
     const totalLessons = TotalLessonsByType[subscription.typeOfSubscription] || 0;
     const usedLessons = calculateUsedLessons(
         subscription.startDate,
         subscription.group.classDays,
+        holidays,
     );
     const remainingLessons = Math.max(0, totalLessons - usedLessons + subscription.illnessCount);
 
@@ -47,6 +57,14 @@ mysub.command("mysub", async (ctx) => {
         remainingLessons,
     );
 
+    const subscriptionStart = new Date(subscription.startDate);
+    const subscriptionEnd = new Date(nextPaymentDate);
+    
+    const affectedHolidays = holidays.filter(holiday => {
+        const holidayDate = new Date(holiday.date);
+        return holidayDate <= subscriptionEnd && holidayDate >= subscriptionStart;
+    });
+
     const message = [
         "🎭 Your Current Subscription:",
         `Type: ${SubscriptionTypeFormatMap[subscription.typeOfSubscription] || subscription.typeOfSubscription}`,
@@ -54,7 +72,8 @@ mysub.command("mysub", async (ctx) => {
         `Lessons: ${remainingLessons} of ${totalLessons} remaining`,
         (subscription.illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${subscription.illnessCount}\n` : ""),
         `Next payment/renewal: ${formatDate(nextPaymentDate)}`,
-        `\nClass days: ${subscription.group.classDays.join(", ")}`
+        `\nClass days: ${subscription.group.classDays.join(", ")}`,
+        (affectedHolidays.length > 0 ? `\n📅 Holidays:\n${affectedHolidays.map(h => `• ${h.name}: ${formatDate(new Date(h.date))}`).join('\n')}` : "")
     ].join("\n");
 
     await ctx.reply(message);
