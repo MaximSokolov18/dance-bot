@@ -1,13 +1,12 @@
 import {Composer} from "grammy/web";
 import prisma from "../db.js";
-import {GroupNameFormatMap, SubscriptionTypeFormatMap, TotalLessonsByType} from "../constants.js";
+import {GroupNameFormatMap, SubscriptionTypeFormatMap, TotalLessonsByType, WeekDayToNumber} from "../constants.js";
 import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../utils.js";
 
 export const mysub = new Composer();
 
 // TODO: add time in group lessons, handle holidays
 // TODO: check/add abon for 4 lessons on specifyc weekday (e.g., 4 Monday lessons)
-// TODO: add in mysub inf about hodays and notifaction status
 mysub.command("mysub", async (ctx) => {
     if (!ctx.from) return;
 
@@ -39,6 +38,11 @@ mysub.command("mysub", async (ctx) => {
     }
 
     const holidays = await prisma.holiday.findMany({
+        where: {
+            date: {
+                gte: subscription.startDate
+            }
+        },
         orderBy: {
             date: 'asc'
         }
@@ -55,14 +59,18 @@ mysub.command("mysub", async (ctx) => {
     const nextPaymentDate = calculateNextPaymentDate(
         subscription.group.classDays,
         remainingLessons,
+        holidays
     );
 
     const subscriptionStart = new Date(subscription.startDate);
     const subscriptionEnd = new Date(nextPaymentDate);
     
+    const classWeekDays = subscription.group.classDays.map((day) => WeekDayToNumber[day]);
     const affectedHolidays = holidays.filter(holiday => {
         const holidayDate = new Date(holiday.date);
-        return holidayDate <= subscriptionEnd && holidayDate >= subscriptionStart;
+        const isInSubscriptionPeriod = holidayDate <= subscriptionEnd && holidayDate >= subscriptionStart;
+        const isOnClassDay = classWeekDays.includes(holidayDate.getDay());
+        return isInSubscriptionPeriod && isOnClassDay;
     });
 
     const message = [
@@ -70,6 +78,7 @@ mysub.command("mysub", async (ctx) => {
         `Type: ${SubscriptionTypeFormatMap[subscription.typeOfSubscription] || subscription.typeOfSubscription}`,
         `Group: ${GroupNameFormatMap[subscription.group.name] || subscription.group.name}`,
         `Lessons: ${remainingLessons} of ${totalLessons} remaining`,
+        `Notifications: ${user.allowNotifications ? "Enabled ✅" : "Disabled ❌"}`,
         (subscription.illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${subscription.illnessCount}\n` : ""),
         `Next payment/renewal: ${formatDate(nextPaymentDate)}`,
         `\nClass days: ${subscription.group.classDays.join(", ")}`,

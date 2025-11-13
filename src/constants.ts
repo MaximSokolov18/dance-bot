@@ -3,6 +3,7 @@ import type {SubscriptionType, Weekday, DanceType} from "@prisma/client";
 export const COMMANDS = [
     {command: "notify", description: "Toggle subscription notifications"},
     {command: "mysub", description: "View my subscription details"},
+    {command: "feedback", description: "Share your feedback with us"},
 ];
 
 export const WeekDayToNumber: Record<Weekday, number> = {

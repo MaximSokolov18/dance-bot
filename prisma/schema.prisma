@@ -16,6 +16,7 @@ model User {
   languageCode       String?
   allowNotifications Boolean       @default(true)
   subscriptions      Subscription[]
+  feedbacks          Feedback[]
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 }
@@ -83,4 +84,16 @@ enum Weekday {
 enum DanceType {
   JazzFunk
   HighHeels
+}
+
+model Feedback {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  telegramId   Int
+  userName     String?
+  languageCode String?
+  message      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
