@@ -32,7 +32,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 # Copy built application from builder
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist/bot.js ./dist/bot.js
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy Prisma schema (needed for Prisma Studio)

@@ -1,5 +1,5 @@
 import {Composer} from "grammy/web";
-import type {MyContext} from "../bot.js";
+import type {MyContext} from "../bot";
 
 /**
  * Admin authentication middleware

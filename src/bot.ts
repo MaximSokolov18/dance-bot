@@ -1,9 +1,9 @@
 import {Bot, Context, session, type SessionFlavor} from "grammy/web";
 import {conversations, createConversation, type Conversation, type ConversationFlavor} from "@grammyjs/conversations";
-import prisma from "./db.js";
-import {COMMANDS, ADMIN_COMMANDS} from "./constants.js";
-import {CONVERSATION_NAMES} from "./admin/constants.js";
-import {mysub, notify, feedback, feedbackConversation} from "./user/index.js";
+import prisma from "./db";
+import {COMMANDS, ADMIN_COMMANDS} from "./constants";
+import {CONVERSATION_NAMES} from "./admin/constants";
+import {mysub, notify, feedback, feedbackConversation} from "./user";
 import {
     adminUsers,
     adminSubscriptions,
@@ -31,7 +31,7 @@ import {
     adminHolidayDeleteConversation,
     adminFeedbackListConversation,
     adminFeedbackViewConversation
-} from "./admin/index.js";
+} from "./admin";
 
 interface SessionData {}
 

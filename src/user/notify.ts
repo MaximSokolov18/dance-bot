@@ -1,6 +1,6 @@
 import {Composer} from "grammy/web";
-import prisma from "../db.js";
-import {updateNotificationSchedule, initializeGlobalScheduler} from '../utils/index.js';
+import prisma from "../db";
+import {updateNotificationSchedule, initializeGlobalScheduler} from '../utils';
 
 export const notify = new Composer();
 

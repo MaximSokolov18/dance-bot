@@ -1,11 +1,11 @@
 import {Composer, InlineKeyboard} from "grammy/web";
-import type {MyContext} from "../bot.js";
-import {adminMiddleware} from "./middleware.js";
-import prisma from "../db.js";
+import type {MyContext} from "../bot";
+import {adminMiddleware} from "./middleware";
+import prisma from "../db";
 import type {Conversation} from "@grammyjs/conversations";
 import {SubscriptionType, PaymentType} from "@prisma/client";
-import {SubscriptionTypeFormatMap} from "../constants.js";
-import {ADMIN_SUBSCRIPTION_CALLBACKS, SUBSCRIPTION_FILTERS, SUBSCRIPTION_UPDATE_FIELDS, CONVERSATION_NAMES} from "./constants.js";
+import {SubscriptionTypeFormatMap} from "../constants";
+import {ADMIN_SUBSCRIPTION_CALLBACKS, SUBSCRIPTION_FILTERS, SUBSCRIPTION_UPDATE_FIELDS, CONVERSATION_NAMES} from "./constants";
 
 export const adminSubscriptions = new Composer<MyContext>();
 adminSubscriptions.use(adminMiddleware);
