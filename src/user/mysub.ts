@@ -5,17 +5,22 @@ import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../uti
 
 export const mysub = new Composer();
 
-// TODO: add time in group lessons, handle holidays
-// TODO: check/add abon for 4 lessons on specifyc weekday (e.g., 4 Monday lessons)
 mysub.command("mysub", async (ctx) => {
     if (!ctx.from) return;
 
     const user = await prisma.user.findUnique({
-        where: {telegramId: ctx.from.id},
+        where: {telegramId: BigInt(ctx.from.id)},
         include: {
             subscriptions: {
+                where: {
+                    isActive: true
+                },
                 include: {
-                    group: true
+                    group: {
+                        include: {
+                            classDays: true
+                        }
+                    }
                 },
                 orderBy: {
                     startDate: 'desc'
@@ -65,7 +70,7 @@ mysub.command("mysub", async (ctx) => {
     const subscriptionStart = new Date(subscription.startDate);
     const subscriptionEnd = new Date(nextPaymentDate);
     
-    const classWeekDays = subscription.group.classDays.map((day) => WeekDayToNumber[day]);
+    const classWeekDays = subscription.group.classDays.map((classDay) => WeekDayToNumber[classDay.weekday]);
     const affectedHolidays = holidays.filter(holiday => {
         const holidayDate = new Date(holiday.date);
         const isInSubscriptionPeriod = holidayDate <= subscriptionEnd && holidayDate >= subscriptionStart;
@@ -77,13 +82,13 @@ mysub.command("mysub", async (ctx) => {
         "🎭 Your Current Subscription:",
         `Type: ${SubscriptionTypeFormatMap[subscription.typeOfSubscription] || subscription.typeOfSubscription}`,
         `Group: ${GroupNameFormatMap[subscription.group.name] || subscription.group.name}`,
-        `Lessons: ${remainingLessons} of ${totalLessons} remaining`,
+        `Lessons: ${remainingLessons > totalLessons ? totalLessons : remainingLessons} of ${totalLessons} remaining`,
         `Notifications: ${user.allowNotifications ? "Enabled ✅" : "Disabled ❌"}`,
         (subscription.illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${subscription.illnessCount}\n` : ""),
-        `Next payment/renewal: ${formatDate(nextPaymentDate)}`,
-        `\nClass days: ${subscription.group.classDays.join(", ")}`,
-        (affectedHolidays.length > 0 ? `\n📅 Holidays:\n${affectedHolidays.map(h => `• ${h.name}: ${formatDate(new Date(h.date))}`).join('\n')}` : "")
+        `Class schedule:\n${subscription.group.classDays.map(cd => `• ${cd.weekday} at ${cd.time}`).join("\n")}`,
+        (affectedHolidays.length > 0 ? `\n📅 Holidays:\n${affectedHolidays.map(h => `• ${h.name}: ${formatDate(new Date(h.date))}`).join('\n')}\n` : ""),
+        `<b>Next payment/renewal:</b>\n${formatDate(nextPaymentDate)}`,
     ].join("\n");
 
-    await ctx.reply(message);
+    await ctx.reply(message, { parse_mode: "HTML" });
 });

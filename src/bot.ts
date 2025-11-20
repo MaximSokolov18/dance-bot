@@ -36,12 +36,12 @@ bot.command("start", async (ctx) => {
         language_code
     } = ctx.from;
 
-    let user = await prisma.user.findUnique({where: {telegramId: id}});
+    let user = await prisma.user.findUnique({where: {telegramId: BigInt(id)}});
 
     if (!user) {
         user = await prisma.user.create({
             data: {
-                telegramId: id,
+                telegramId: BigInt(id),
                 firstName: first_name || null,
                 lastName: last_name || null,
                 username: username || null,

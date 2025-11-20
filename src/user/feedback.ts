@@ -10,12 +10,12 @@ async function feedbackConversation(conversation: Conversation<MyContext, MyCont
         return;
     }
 
-    let user = await prisma.user.findUnique({where: {telegramId: ctx.from.id}});
+    let user = await prisma.user.findUnique({where: {telegramId: BigInt(ctx.from.id)}});
     
     if (!user) {
         user = await prisma.user.create({
             data: {
-                telegramId: ctx.from.id,
+                telegramId: BigInt(ctx.from.id),
                 firstName: ctx.from.first_name || null,
                 lastName: ctx.from.last_name || null,
                 username: ctx.from.username || null,
@@ -48,7 +48,7 @@ async function feedbackConversation(conversation: Conversation<MyContext, MyCont
     const feedback = await prisma.feedback.create({
         data: {
             userId: user.id,
-            telegramId: ctx.from.id,
+            telegramId: BigInt(ctx.from.id),
             userName: [ctx.from.first_name, ctx.from.last_name].filter(Boolean).join(" ") || null,
             languageCode: ctx.from.language_code || null,
             message: feedbackMessage,
