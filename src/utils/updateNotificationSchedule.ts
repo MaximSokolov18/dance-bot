@@ -1,6 +1,6 @@
 import prisma from "../db.js";
 import {TotalLessonsByType} from "../constants.js";
-import {calculateNextPaymentDate, calculateUsedLessons} from "../utils.js";
+import {calculateNextPaymentDate, calculateUsedLessons} from "./index.js";
 
 export const updateNotificationSchedule = async (userId: number) => {
     const user = await prisma.user.findUnique({

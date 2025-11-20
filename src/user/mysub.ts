@@ -1,7 +1,7 @@
 import {Composer} from "grammy/web";
 import prisma from "../db.js";
 import {GroupNameFormatMap, SubscriptionTypeFormatMap, TotalLessonsByType, WeekDayToNumber} from "../constants.js";
-import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../utils.js";
+import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../utils/index.js";
 
 export const mysub = new Composer();
 
@@ -83,7 +83,7 @@ mysub.command("mysub", async (ctx) => {
         `Type: ${SubscriptionTypeFormatMap[subscription.typeOfSubscription] || subscription.typeOfSubscription}`,
         `Group: ${GroupNameFormatMap[subscription.group.name] || subscription.group.name}`,
         `Lessons: ${remainingLessons > totalLessons ? totalLessons : remainingLessons} of ${totalLessons} remaining`,
-        `Notifications: ${user.allowNotifications ? "Enabled ✅" : "Disabled ❌"}`,
+        `Notifications(demo): ${user.allowNotifications ? "Enabled ✅" : "Disabled ❌"}`,
         (subscription.illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${subscription.illnessCount}\n` : ""),
         `Class schedule:\n${subscription.group.classDays.map(cd => `• ${cd.weekday} at ${cd.time}`).join("\n")}`,
         (affectedHolidays.length > 0 ? `\n📅 Holidays:\n${affectedHolidays.map(h => `• ${h.name}: ${formatDate(new Date(h.date))}`).join('\n')}\n` : ""),
