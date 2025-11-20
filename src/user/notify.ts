@@ -1,16 +1,15 @@
-import {Api, Composer} from "grammy/web";
+import {Composer} from "grammy/web";
 import prisma from "../db.js";
-import cron from "node-cron";
-import {TotalLessonsByType} from "../constants.js";
-import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../utils.js";
+import {updateNotificationSchedule, initializeGlobalScheduler} from '../utils/index.js';
 
 export const notify = new Composer();
 
-// TODO: check notifications scheduling logic
+initializeGlobalScheduler();
+
 notify.command("notify", async (ctx) => {
     if (!ctx.from) return;
 
-    let user = await prisma.user.findUnique({where: {telegramId: ctx.from.id}});
+    let user = await prisma.user.findUnique({where: {telegramId: BigInt(ctx.from.id)}});
 
     if (user) {
         const updatedUser = await prisma.user.update({
@@ -21,70 +20,20 @@ notify.command("notify", async (ctx) => {
         });
 
         if (updatedUser.allowNotifications) {
-            cron.schedule('0 9 * * *', async () => {
-                if (!ctx.from) return;
-
-                const user = await prisma.user.findUnique({
-                    where: {telegramId: ctx.from.id},
-                    include: {
-                        subscriptions: {
-                            include: {
-                                group: true
-                            },
-                            orderBy: {
-                                startDate: 'desc'
-                            },
-                            take: 1
-                        }
-                    }
-                });
-
-                if (!user) {
-                    return;
-                }
-
-                const [subscription] = user.subscriptions;
-
-                if (!subscription) {
-                    return;
-                }
-
-                // Fetch holidays for accurate calculations
-                const holidays = await prisma.holiday.findMany({
-                    where: {
-                        date: {
-                            gte: subscription.startDate
-                        }
-                    },
-                    orderBy: {
-                        date: 'asc'
-                    }
-                });
-
-                const totalLessons = TotalLessonsByType[subscription.typeOfSubscription] || 0;
-                const usedLessons = calculateUsedLessons(
-                    subscription.startDate,
-                    subscription.group.classDays,
-                    holidays
-                );
-                const remainingLessons = Math.max(0, totalLessons - usedLessons + subscription.illnessCount);
-
-                const nextPaymentDate = calculateNextPaymentDate(
-                    subscription.group.classDays,
-                    remainingLessons,
-                    holidays
-                );
-
-                const paymentDate = new Date(nextPaymentDate).getDate();
-                const today = new Date().getDate();
-
-                const BOT_TOKEN = process.env.BOT_TOKEN;
-                if (paymentDate === today && BOT_TOKEN) {
-                    await new Api(BOT_TOKEN).sendMessage(ctx.from.id, `🔔Your subscription is due for renewal today (${formatDate(nextPaymentDate)}).`);
+            await updateNotificationSchedule(user.id);
+            await prisma.notificationSchedule.upsert({
+                where: { userId: user.id },
+                update: { isEnabled: true },
+                create: {
+                    userId: user.id,
+                    isEnabled: true
                 }
             });
         } else {
-            cron.getTasks().forEach((task) => task.destroy());
+            await prisma.notificationSchedule.updateMany({
+                where: { userId: user.id },
+                data: { isEnabled: false }
+            });
         }
 
         await ctx.reply(

@@ -8,33 +8,45 @@ generator client {
 }
 
 model User {
-  id                 Int           @id @default(autoincrement())
-  telegramId         Int           @unique
-  firstName          String?
-  lastName           String?
-  username           String?
-  languageCode       String?
-  allowNotifications Boolean       @default(true)
-  subscriptions      Subscription[]
-  feedbacks          Feedback[]
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                     Int                    @id @default(autoincrement())
+  telegramId             BigInt                 @unique
+  firstName              String?
+  lastName               String?
+  username               String?
+  languageCode           String?
+  allowNotifications     Boolean                @default(false)
+  subscriptions          Subscription[]
+  feedbacks              Feedback[]
+  notificationSchedule   NotificationSchedule?
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+
+  @@index([allowNotifications])
 }
 
 model Subscription {
-  id                  Int           @id @default(autoincrement())
+  id                  Int              @id @default(autoincrement())
   userId              Int
-  user                User          @relation(fields: [userId], references: [id])
+  user                User             @relation(fields: [userId], references: [id])
   groupId             Int
-  group               Group         @relation(fields: [groupId], references: [id])
-  startDate           DateTime
-  paymentDate         DateTime
+  group               Group            @relation(fields: [groupId], references: [id])
+  startDate           DateTime         @default(now())
+  paymentDate         DateTime         @default(now())
+  endDate             DateTime?
   typeOfSubscription  SubscriptionType
-  amountOfPayment     Float
+  amountOfPayment     Decimal          @db.Decimal(10,2)
   typeOfPayment       PaymentType
-  illnessCount        Int           @default(0)
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  illnessCount        Int              @default(0) @db.SmallInt
+  isActive            Boolean          @default(true)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([groupId])
+  @@index([startDate])
+  @@index([userId, startDate(sort: Desc)])
+  @@index([userId, isActive])
+  @@unique([userId, isActive], map: "unique_active_subscription")
 }
 
 enum SubscriptionType {
@@ -54,10 +66,20 @@ enum PaymentType {
 model Group {
   id            Int            @id @default(autoincrement())
   name          DanceType
-  classDays     Weekday[]
+  classDays     ClassDay[]
   subscriptions Subscription[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+}
+
+model ClassDay {
+  id       Int     @id @default(autoincrement())
+  weekday  Weekday
+  time     String  @default("17:00") @db.VarChar(5)
+  groupId  Int
+  group    Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
 }
 
 model Holiday {
@@ -86,11 +108,24 @@ enum DanceType {
   HighHeels
 }
 
+model NotificationSchedule {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isEnabled   Boolean   @default(true)
+  lastSent    DateTime?
+  nextDue     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isEnabled, nextDue])
+}
+
 model Feedback {
   id           Int      @id @default(autoincrement())
   userId       Int
   user         User     @relation(fields: [userId], references: [id])
-  telegramId   Int
+  telegramId   BigInt
   userName     String?
   languageCode String?
   message      String
