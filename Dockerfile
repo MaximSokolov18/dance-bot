@@ -44,12 +44,11 @@ RUN chmod +x entrypoint.sh
 
 # Expose ports
 # 3000 for webhook (if needed)
-# 5555 for Prisma Studio
-EXPOSE 3000 5555
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD node -e "console.log('OK')" || exit 1
 
-# Start the bot and Prisma Studio
+# Start the bot
 CMD ["./entrypoint.sh"]
