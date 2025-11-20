@@ -1,10 +1,10 @@
 {
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "start": "node dist/src/bot.js",
-    "dev": "tsc --watch --preserveWatchOutput & node --watch dist/src/bot.js",
+    "build": "esbuild src/bot.ts --bundle --platform=node --target=node22 --format=esm --packages=external --outfile=dist/bot.js --sourcemap",
+    "watch": "esbuild src/bot.ts --bundle --platform=node --target=node22 --format=esm --packages=external --outfile=dist/bot.js --sourcemap --watch",
+    "start": "node dist/bot.js",
+    "dev": "esbuild src/bot.ts --bundle --platform=node --target=node22 --format=esm --packages=external --outfile=dist/bot.js --sourcemap --watch & node --watch dist/bot.js",
     "prisma:generate": "node -r dotenv/config ./node_modules/.bin/prisma generate --no-engine",
     "prisma:migrate": "node -r dotenv/config ./node_modules/.bin/prisma migrate dev",
     "prisma:studio": "node -r dotenv/config ./node_modules/.bin/prisma studio",
@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "esbuild": "^0.27.0",
     "prisma": "^6.19.0",
     "typescript": "^5.9.3"
   },

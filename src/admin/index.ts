@@ -1,5 +1,5 @@
-export {adminUsers, adminUserViewConversation, adminUserCreateConversation, adminUserUpdateConversation, adminUserDeleteConversation} from "./users.js";
-export {adminSubscriptions, adminSubscriptionsListConversation, adminSubscriptionViewConversation, adminSubscriptionCreateConversation, adminSubscriptionUpdateConversation, adminSubscriptionDeleteConversation} from "./subscriptions.js";
-export {adminGroups, adminGroupViewConversation, adminGroupCreateConversation, adminGroupUpdateConversation, adminGroupDeleteConversation, adminClassDayAddConversation, adminClassDayDeleteConversation} from "./groups.js";
-export {adminHolidays, adminHolidayViewConversation, adminHolidayCreateConversation, adminHolidayUpdateConversation, adminHolidayDeleteConversation} from "./holidays.js";
-export {adminFeedback, adminFeedbackListConversation, adminFeedbackViewConversation} from "./feedback.js";
+export {adminUsers, adminUserViewConversation, adminUserCreateConversation, adminUserUpdateConversation, adminUserDeleteConversation} from "./users";
+export {adminSubscriptions, adminSubscriptionsListConversation, adminSubscriptionViewConversation, adminSubscriptionCreateConversation, adminSubscriptionUpdateConversation, adminSubscriptionDeleteConversation} from "./subscriptions";
+export {adminGroups, adminGroupViewConversation, adminGroupCreateConversation, adminGroupUpdateConversation, adminGroupDeleteConversation, adminClassDayAddConversation, adminClassDayDeleteConversation} from "./groups";
+export {adminHolidays, adminHolidayViewConversation, adminHolidayCreateConversation, adminHolidayUpdateConversation, adminHolidayDeleteConversation} from "./holidays";
+export {adminFeedback, adminFeedbackListConversation, adminFeedbackViewConversation} from "./feedback";

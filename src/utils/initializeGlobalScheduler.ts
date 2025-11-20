@@ -1,8 +1,8 @@
 import cron from "node-cron";
 import {Api} from "grammy/web";
-import prisma from "../db.js";
-import {updateNotificationSchedule} from "./updateNotificationSchedule.js";
-import {formatDate} from "./index.js";
+import prisma from "../db";
+import {updateNotificationSchedule} from "./updateNotificationSchedule";
+import {formatDate} from "./formatDate";
 
 let globalSchedulerInitialized = false;
 

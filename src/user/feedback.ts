@@ -1,8 +1,8 @@
 import {Composer} from "grammy/web";
-import {type MyContext} from "../bot.js";
+import {type MyContext} from "../bot";
 import type {Conversation} from "@grammyjs/conversations";
-import prisma from "../db.js";
-import {CONVERSATION_NAMES} from "../admin/constants.js";
+import prisma from "../db";
+import {CONVERSATION_NAMES} from "../admin/constants";
 
 
 async function feedbackConversation(conversation: Conversation<MyContext, MyContext>, ctx: MyContext) {

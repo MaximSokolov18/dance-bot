@@ -1,9 +1,9 @@
 import {Composer, InlineKeyboard} from "grammy/web";
-import type {MyContext} from "../bot.js";
-import {adminMiddleware} from "./middleware.js";
-import prisma from "../db.js";
+import type {MyContext} from "../bot";
+import {adminMiddleware} from "./middleware";
+import prisma from "../db";
 import type {Conversation} from "@grammyjs/conversations";
-import {ADMIN_USER_CALLBACKS, USER_UPDATE_FIELDS, CONVERSATION_NAMES} from "./constants.js";
+import {ADMIN_USER_CALLBACKS, USER_UPDATE_FIELDS, CONVERSATION_NAMES} from "./constants";
 
 export const adminUsers = new Composer<MyContext>();
 adminUsers.use(adminMiddleware);

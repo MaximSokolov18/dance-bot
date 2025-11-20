@@ -1,11 +1,11 @@
 import {Composer, InlineKeyboard} from "grammy/web";
-import type {MyContext} from "../bot.js";
-import {adminMiddleware} from "./middleware.js";
-import prisma from "../db.js";
+import type {MyContext} from "../bot";
+import {adminMiddleware} from "./middleware";
+import prisma from "../db";
 import type {Conversation} from "@grammyjs/conversations";
 import {DanceType, Weekday} from "@prisma/client";
-import {GroupNameFormatMap} from "../constants.js";
-import {ADMIN_GROUP_CALLBACKS, ADMIN_CLASS_DAY_CALLBACKS, CONVERSATION_NAMES} from "./constants.js";
+import {GroupNameFormatMap} from "../constants";
+import {ADMIN_GROUP_CALLBACKS, ADMIN_CLASS_DAY_CALLBACKS, CONVERSATION_NAMES} from "./constants";
 
 export const adminGroups = new Composer<MyContext>();
 adminGroups.use(adminMiddleware);

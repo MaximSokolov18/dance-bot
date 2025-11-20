@@ -1,7 +1,7 @@
 import {Composer} from "grammy/web";
-import prisma from "../db.js";
-import {GroupNameFormatMap, SubscriptionTypeFormatMap, TotalLessonsByType, WeekDayToNumber} from "../constants.js";
-import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../utils/index.js";
+import prisma from "../db";
+import {GroupNameFormatMap, SubscriptionTypeFormatMap, TotalLessonsByType, WeekDayToNumber} from "../constants";
+import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../utils";
 
 export const mysub = new Composer();
 

@@ -1,7 +1,7 @@
 import type {Holiday, ClassDay} from "@prisma/client";
-import {WeekDayToNumber} from "../constants.js";
-import {isDateInHoliday} from "./isDateInHoliday.js";
-import {getClassDateTime} from "./getClassDateTime.js";
+import {WeekDayToNumber} from "../constants";
+import {isDateInHoliday} from "./isDateInHoliday";
+import {getClassDateTime} from "./getClassDateTime";
 
 export const calculateUsedLessons = (startDate: Date, classDays: ClassDay[], holidays: Holiday[] = []): number => {
     const now = new Date();
