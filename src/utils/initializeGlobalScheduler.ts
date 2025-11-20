@@ -62,7 +62,6 @@ export const initializeGlobalScheduler = () => {
                     try {
                         await api.sendMessage(user.telegramId.toString(), message);
                         
-                        // Update last sent timestamp and calculate next due date
                         await updateNotificationSchedule(user.id);
                         
                         console.log(`Notification sent to user ${user.telegramId}`);

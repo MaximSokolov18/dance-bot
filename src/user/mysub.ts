@@ -24,8 +24,7 @@ mysub.command("mysub", async (ctx) => {
                 },
                 orderBy: {
                     startDate: 'desc'
-                },
-                take: 1
+                }
             }
         }
     });
@@ -35,60 +34,60 @@ mysub.command("mysub", async (ctx) => {
         return;
     }
 
-    const [subscription] = user.subscriptions;
-
-    if (!subscription) {
-        await ctx.reply("You don't have any subscriptions yet.");
+    if (user.subscriptions.length === 0) {
+        await ctx.reply("You don't have any active subscriptions yet. Contact your trainer for details.");
         return;
     }
 
-    const holidays = await prisma.holiday.findMany({
-        where: {
-            date: {
-                gte: subscription.startDate
+    user.subscriptions.forEach(async ({typeOfSubscription, startDate, group, illnessCount}) => {
+        const holidays = await prisma.holiday.findMany({
+            where: {
+                date: {
+                    gte: startDate
+                }
+            },
+            orderBy: {
+                date: 'asc'
             }
-        },
-        orderBy: {
-            date: 'asc'
-        }
+        });
+
+        const totalLessons = TotalLessonsByType[typeOfSubscription] || 0;
+        const usedLessons = calculateUsedLessons(
+            startDate,
+            group.classDays,
+            holidays,
+        );
+        const remainingLessons = Math.max(0, totalLessons - usedLessons + illnessCount);
+
+        const nextPaymentDate = calculateNextPaymentDate(
+            group.classDays,
+            remainingLessons,
+            holidays
+        );
+
+        const subscriptionStart = new Date(startDate);
+        const subscriptionEnd = new Date(nextPaymentDate);
+
+        const classWeekDays = group.classDays.map((classDay) => WeekDayToNumber[classDay.weekday]);
+        const affectedHolidays = holidays.filter(holiday => {
+            const holidayDate = new Date(holiday.date);
+            const isInSubscriptionPeriod = holidayDate <= subscriptionEnd && holidayDate >= subscriptionStart;
+            const isOnClassDay = classWeekDays.includes(holidayDate.getDay());
+            return isInSubscriptionPeriod && isOnClassDay;
+        });
+
+        const message = [
+            "🎭 Your Subscription:",
+            `Type: ${SubscriptionTypeFormatMap[typeOfSubscription] || typeOfSubscription}`,
+            `Group: ${GroupNameFormatMap[group.name] || group.name}`,
+            `Lessons: ${remainingLessons > totalLessons ? totalLessons : remainingLessons} of ${totalLessons} remaining`,
+            `Notifications(demo): ${user.allowNotifications ? "Enabled ✅" : "Disabled ❌"}`,
+            (illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${illnessCount}\n` : ""),
+            `Class schedule:\n${group.classDays.map(cd => `• ${cd.weekday} at ${cd.time}`).join("\n")}`,
+            (affectedHolidays.length > 0 ? `\n📅 Holidays:\n${affectedHolidays.map(h => `• ${h.name}: ${formatDate(new Date(h.date))}`).join('\n')}\n` : ""),
+            `<b>Next payment/renewal:</b>\n${formatDate(nextPaymentDate)}`,
+        ].join("\n");
+
+        await ctx.reply(message, {parse_mode: "HTML"});
     });
-
-    const totalLessons = TotalLessonsByType[subscription.typeOfSubscription] || 0;
-    const usedLessons = calculateUsedLessons(
-        subscription.startDate,
-        subscription.group.classDays,
-        holidays,
-    );
-    const remainingLessons = Math.max(0, totalLessons - usedLessons + subscription.illnessCount);
-
-    const nextPaymentDate = calculateNextPaymentDate(
-        subscription.group.classDays,
-        remainingLessons,
-        holidays
-    );
-
-    const subscriptionStart = new Date(subscription.startDate);
-    const subscriptionEnd = new Date(nextPaymentDate);
-    
-    const classWeekDays = subscription.group.classDays.map((classDay) => WeekDayToNumber[classDay.weekday]);
-    const affectedHolidays = holidays.filter(holiday => {
-        const holidayDate = new Date(holiday.date);
-        const isInSubscriptionPeriod = holidayDate <= subscriptionEnd && holidayDate >= subscriptionStart;
-        const isOnClassDay = classWeekDays.includes(holidayDate.getDay());
-        return isInSubscriptionPeriod && isOnClassDay;
-    });
-
-    const message = [
-        "🎭 Your Current Subscription:",
-        `Type: ${SubscriptionTypeFormatMap[subscription.typeOfSubscription] || subscription.typeOfSubscription}`,
-        `Group: ${GroupNameFormatMap[subscription.group.name] || subscription.group.name}`,
-        `Lessons: ${remainingLessons > totalLessons ? totalLessons : remainingLessons} of ${totalLessons} remaining`,
-        `Notifications(demo): ${user.allowNotifications ? "Enabled ✅" : "Disabled ❌"}`,
-        (subscription.illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${subscription.illnessCount}\n` : ""),
-        `Class schedule:\n${subscription.group.classDays.map(cd => `• ${cd.weekday} at ${cd.time}`).join("\n")}`,
-        (affectedHolidays.length > 0 ? `\n📅 Holidays:\n${affectedHolidays.map(h => `• ${h.name}: ${formatDate(new Date(h.date))}`).join('\n')}\n` : ""),
-        `<b>Next payment/renewal:</b>\n${formatDate(nextPaymentDate)}`,
-    ].join("\n");
-
-    await ctx.reply(message, { parse_mode: "HTML" });
 });

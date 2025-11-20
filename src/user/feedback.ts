@@ -2,6 +2,7 @@ import {Composer} from "grammy/web";
 import {type MyContext} from "../bot.js";
 import type {Conversation} from "@grammyjs/conversations";
 import prisma from "../db.js";
+import {CONVERSATION_NAMES} from "../admin/constants.js";
 
 
 async function feedbackConversation(conversation: Conversation<MyContext, MyContext>, ctx: MyContext) {
@@ -85,7 +86,7 @@ async function feedbackConversation(conversation: Conversation<MyContext, MyCont
 export const feedback = new Composer<MyContext>();
 
 feedback.command("feedback", async (ctx) => {
-    await ctx.conversation.enter("feedbackConversation");
+    await ctx.conversation.enter(CONVERSATION_NAMES.FEEDBACK);
 });
 
 export {feedbackConversation};

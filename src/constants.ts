@@ -6,6 +6,14 @@ export const COMMANDS = [
     {command: "feedback", description: "Provide feedback or report an issue"},
 ];
 
+export const ADMIN_COMMANDS = [
+    {command: "admin_user", description: "[Admin] User management"},
+    {command: "admin_subscription", description: "[Admin] Subscription management"},
+    {command: "admin_group", description: "[Admin] Group management"},
+    {command: "admin_holiday", description: "[Admin] Holiday management"},
+    {command: "admin_feedback", description: "[Admin] Feedback management"},
+];
+
 export const WeekDayToNumber: Record<Weekday, number> = {
     Monday: 1,
     Tuesday: 2,
