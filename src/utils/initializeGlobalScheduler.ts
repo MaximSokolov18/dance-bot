@@ -2,7 +2,7 @@ import cron from "node-cron";
 import {Api} from "grammy/web";
 import prisma from "../db.js";
 import {updateNotificationSchedule} from "./updateNotificationSchedule.js";
-import {formatDate} from "../utils.js";
+import {formatDate} from "./index.js";
 
 let globalSchedulerInitialized = false;
 
