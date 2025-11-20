@@ -10,7 +10,7 @@ export const initializeGlobalScheduler = () => {
     if (globalSchedulerInitialized) return;
     
     globalSchedulerInitialized = true;
-    cron.schedule('0 9 * * *', async () => {
+    cron.schedule('0 11 * * *', async () => {
         console.log('Running daily notification check...');
         
         try {

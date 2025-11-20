@@ -38,7 +38,7 @@ notify.command("notify", async (ctx) => {
 
         await ctx.reply(
             updatedUser.allowNotifications
-                ? "✅ Notifications enabled. You will receive updates about your subscription."
+                ? "✅ Notifications enabled. You'll receive a reminder about renewing your subscription at 11:00 AM on your training day"
                 : "🔕 Notifications disabled. You won't receive any updates."
         );
         return;
