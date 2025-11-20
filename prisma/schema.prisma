@@ -46,7 +46,7 @@ model Subscription {
   @@index([startDate])
   @@index([userId, startDate(sort: Desc)])
   @@index([userId, isActive])
-  @@unique([userId, isActive], map: "unique_active_subscription")
+  @@unique([userId, groupId, isActive], map: "unique_active_subscription_per_group")
 }
 
 enum SubscriptionType {
