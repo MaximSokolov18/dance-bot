@@ -10,6 +10,7 @@ import {
     adminGroups,
     adminHolidays,
     adminFeedback,
+    adminEarnings,
     adminUserViewConversation,
     adminUserCreateConversation,
     adminUserUpdateConversation,
@@ -30,7 +31,8 @@ import {
     adminHolidayUpdateConversation,
     adminHolidayDeleteConversation,
     adminFeedbackListConversation,
-    adminFeedbackViewConversation
+    adminFeedbackViewConversation,
+    adminEarningsCustomConversation
 } from "./admin";
 
 interface SessionData {}
@@ -71,6 +73,7 @@ bot.use(createConversation(adminHolidayUpdateConversation, CONVERSATION_NAMES.AD
 bot.use(createConversation(adminHolidayDeleteConversation, CONVERSATION_NAMES.ADMIN_HOLIDAY_DELETE));
 bot.use(createConversation(adminFeedbackListConversation, CONVERSATION_NAMES.ADMIN_FEEDBACK_LIST));
 bot.use(createConversation(adminFeedbackViewConversation, CONVERSATION_NAMES.ADMIN_FEEDBACK_VIEW));
+bot.use(createConversation(adminEarningsCustomConversation, CONVERSATION_NAMES.ADMIN_EARNINGS_CUSTOM));
 
 await bot.api.setMyCommands(COMMANDS);
 
@@ -118,5 +121,6 @@ bot.use(adminSubscriptions);
 bot.use(adminGroups);
 bot.use(adminHolidays);
 bot.use(adminFeedback);
+bot.use(adminEarnings);
 
 bot.start();

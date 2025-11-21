@@ -3,3 +3,4 @@ export {adminSubscriptions, adminSubscriptionsListConversation, adminSubscriptio
 export {adminGroups, adminGroupViewConversation, adminGroupCreateConversation, adminGroupUpdateConversation, adminGroupDeleteConversation, adminClassDayAddConversation, adminClassDayDeleteConversation} from "./groups";
 export {adminHolidays, adminHolidayViewConversation, adminHolidayCreateConversation, adminHolidayUpdateConversation, adminHolidayDeleteConversation} from "./holidays";
 export {adminFeedback, adminFeedbackListConversation, adminFeedbackViewConversation} from "./feedback";
+export {adminEarnings, adminEarningsCustomConversation} from "./earnings";

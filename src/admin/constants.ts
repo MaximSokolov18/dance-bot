@@ -66,6 +66,12 @@ export const FEEDBACK_FILTERS = {
     DATE: "fb_date",
 } as const;
 
+export const ADMIN_EARNINGS_CALLBACKS = {
+    CURRENT_MONTH: "admin_earn_current",
+    PREV_MONTH: "admin_earn_prev",
+    CUSTOM: "admin_earn_custom",
+} as const;
+
 export const CONVERSATION_NAMES = {
     FEEDBACK: "feedbackConversation",
     
@@ -95,4 +101,6 @@ export const CONVERSATION_NAMES = {
     
     ADMIN_FEEDBACK_LIST: "adminFeedbackListConversation",
     ADMIN_FEEDBACK_VIEW: "adminFeedbackViewConversation",
+    
+    ADMIN_EARNINGS_CUSTOM: "adminEarningsCustomConversation",
 } as const;
