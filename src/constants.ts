@@ -12,6 +12,7 @@ export const ADMIN_COMMANDS = [
     {command: "admin_group", description: "[Admin] Group management"},
     {command: "admin_holiday", description: "[Admin] Holiday management"},
     {command: "admin_feedback", description: "[Admin] Feedback management"},
+    {command: "admin_earnings", description: "[Admin] Monthly earnings report"},
 ];
 
 export const WeekDayToNumber: Record<Weekday, number> = {
