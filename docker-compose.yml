@@ -9,6 +9,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - BOT_TOKEN=${BOT_TOKEN}
       - ADMIN_TELEGRAM_ID=${ADMIN_TELEGRAM_ID}
+      - TZ=Europe/Madrid
     restart: unless-stopped
     ports:
       - "5555:5555"  # Prisma Studio

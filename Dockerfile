@@ -42,6 +42,9 @@ COPY prisma ./prisma
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
+# Set timezone to Spain
+ENV TZ=Europe/Madrid
+
 # Expose ports
 # 3000 for webhook (if needed)
 EXPOSE 3000
