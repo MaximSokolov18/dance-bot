@@ -168,8 +168,7 @@ export async function adminSubscriptionViewConversation(conversation: Conversati
         message += `  Payment Date: ${subscription.paymentDate.toLocaleDateString()}\n\n`;
         
         message += `<b>Dates:</b>\n`;
-        message += `  Start: ${subscription.startDate.toLocaleDateString()}\n`;
-        message += `  End: ${subscription.endDate ? subscription.endDate.toLocaleDateString() : 'N/A'}\n\n`;
+        message += `  Start: ${subscription.startDate.toLocaleDateString()}\n\n`;
         
         message += `<b>Additional:</b>\n`;
         message += `  Illness Days: ${subscription.illnessCount}\n`;
@@ -417,7 +416,6 @@ export async function adminSubscriptionUpdateConversation(conversation: Conversa
     const keyboard = new InlineKeyboard()
         .text("🏥 Add Illness Days", SUBSCRIPTION_UPDATE_FIELDS.ILLNESS)
         .text("💰 Update Amount", SUBSCRIPTION_UPDATE_FIELDS.AMOUNT).row()
-        .text("📅 Set End Date", SUBSCRIPTION_UPDATE_FIELDS.END_DATE)
         .text("🔄 Toggle Status", SUBSCRIPTION_UPDATE_FIELDS.STATUS);
 
     await ctx.reply(message + `Select field to update:`, {reply_markup: keyboard});
@@ -472,25 +470,6 @@ export async function adminSubscriptionUpdateConversation(conversation: Conversa
                     data: {amountOfPayment: newAmount}
                 });
                 await ctx.reply(`✅ Payment amount updated to €${newAmount}!`);
-                break;
-
-            case SUBSCRIPTION_UPDATE_FIELDS.END_DATE:
-                await ctx.reply("Enter end date (YYYY-MM-DD):");
-                const dateCtx = await conversation.wait();
-                if (dateCtx.message?.text === "/cancel") {
-                    await ctx.reply("❌ Operation cancelled.");
-                    return;
-                }
-                const endDate = new Date(dateCtx.message?.text || "");
-                if (isNaN(endDate.getTime())) {
-                    await ctx.reply("❌ Invalid date format.");
-                    return;
-                }
-                await prisma.subscription.update({
-                    where: {id: subId},
-                    data: {endDate}
-                });
-                await ctx.reply(`✅ End date set to ${endDate.toLocaleDateString()}!`);
                 break;
 
             case SUBSCRIPTION_UPDATE_FIELDS.STATUS:

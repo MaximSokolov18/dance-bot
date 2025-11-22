@@ -43,7 +43,6 @@ export const SUBSCRIPTION_FILTERS = {
 export const SUBSCRIPTION_UPDATE_FIELDS = {
     ILLNESS: "upd_illness",
     AMOUNT: "upd_amount",
-    END_DATE: "upd_enddate",
     STATUS: "upd_status",
 } as const;
 
