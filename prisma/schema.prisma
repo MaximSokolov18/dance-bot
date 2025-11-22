@@ -32,7 +32,6 @@ model Subscription {
   group               Group            @relation(fields: [groupId], references: [id])
   startDate           DateTime         @default(now())
   paymentDate         DateTime         @default(now())
-  endDate             DateTime?
   typeOfSubscription  SubscriptionType
   amountOfPayment     Decimal          @db.Decimal(10,2)
   typeOfPayment       PaymentType
