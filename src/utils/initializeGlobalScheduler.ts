@@ -1,5 +1,6 @@
 import cron from "node-cron";
 import {Api} from "grammy/web";
+import {autoRetry} from "@grammyjs/auto-retry";
 import prisma from "../db";
 import {updateNotificationSchedule} from "./updateNotificationSchedule";
 import {formatDate} from "./formatDate";
@@ -51,6 +52,10 @@ export const initializeGlobalScheduler = () => {
             if (!BOT_TOKEN) return;
             
             const api = new Api(BOT_TOKEN);
+            api.config.use(autoRetry({
+                maxRetryAttempts: 3,
+                maxDelaySeconds: 10,
+            }));
             
             for (const schedule of schedules) {
                 const user = schedule.user;

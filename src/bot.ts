@@ -1,5 +1,6 @@
 import {Bot, Context, session, type SessionFlavor, GrammyError, HttpError} from "grammy/web";
 import {conversations, createConversation, type Conversation, type ConversationFlavor} from "@grammyjs/conversations";
+import {autoRetry} from "@grammyjs/auto-retry";
 import prisma from "./db";
 import {COMMANDS, ADMIN_COMMANDS} from "./constants";
 import {CONVERSATION_NAMES} from "./admin/constants";
@@ -46,6 +47,11 @@ if (!BOT_TOKEN) {
 }
 
 const bot = new Bot<MyContext>(BOT_TOKEN);
+
+bot.api.config.use(autoRetry({
+    maxRetryAttempts: 3,
+    maxDelaySeconds: 10,
+}));
 
 bot.use(session({initial: () => ({})}));
 bot.use(conversations());
