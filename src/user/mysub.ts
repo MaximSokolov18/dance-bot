@@ -39,18 +39,24 @@ mysub.command("mysub", async (ctx) => {
         return;
     }
 
-    user.subscriptions.forEach(async ({typeOfSubscription, startDate, group, illnessCount}) => {
-        const holidays = await prisma.holiday.findMany({
-            where: {
-                date: {
-                    gte: startDate
-                }
-            },
-            orderBy: {
-                date: 'asc'
-            }
-        });
+    const {subscriptions} = user;
+    const startDate = subscriptions.reduce((earliest, sub) => {
+        const subDate = new Date(sub.startDate);
+        return subDate < earliest ? subDate : earliest;
+    }, new Date()); 
 
+    const holidays = await prisma.holiday.findMany({
+        where: {
+            date: {
+                gte: startDate
+            }
+        },
+        orderBy: {
+            date: 'asc'
+        }
+    });
+
+    subscriptions.forEach(async ({typeOfSubscription, startDate, group, illnessCount}) => {
         const totalLessons = TotalLessonsByType[typeOfSubscription] || 0;
         const usedLessons = calculateUsedLessons(
             startDate,
