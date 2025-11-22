@@ -1,4 +1,4 @@
-import {Bot, Context, session, type SessionFlavor} from "grammy/web";
+import {Bot, Context, session, type SessionFlavor, GrammyError, HttpError} from "grammy/web";
 import {conversations, createConversation, type Conversation, type ConversationFlavor} from "@grammyjs/conversations";
 import prisma from "./db";
 import {COMMANDS, ADMIN_COMMANDS} from "./constants";
@@ -86,30 +86,35 @@ if (process.env.ADMIN_TELEGRAM_ID) {
 bot.command("start", async (ctx) => {
     if (!ctx.from) return;
 
-    const {
-        id,
-        first_name,
-        last_name,
-        username,
-        language_code
-    } = ctx.from;
+    try {
+        const {
+            id,
+            first_name,
+            last_name,
+            username,
+            language_code
+        } = ctx.from;
 
-    let user = await prisma.user.findUnique({where: {telegramId: BigInt(id)}});
+        let user = await prisma.user.findUnique({where: {telegramId: BigInt(id)}});
 
-    if (!user) {
-        user = await prisma.user.create({
-            data: {
-                telegramId: BigInt(id),
-                firstName: first_name || null,
-                lastName: last_name || null,
-                username: username || null,
-                languageCode: language_code || null,
-                allowNotifications: true,
-            }
-        });
+        if (!user) {
+            user = await prisma.user.create({
+                data: {
+                    telegramId: BigInt(id),
+                    firstName: first_name || null,
+                    lastName: last_name || null,
+                    username: username || null,
+                    languageCode: language_code || null,
+                    allowNotifications: true,
+                }
+            });
+        }
+
+        await ctx.reply(`Welcome ${first_name || "there"}!`);
+    } catch (error) {
+        console.error("Error in /start command:", error);
+        await ctx.reply("❌ Sorry, something went wrong. Please try again later.");
     }
-
-    ctx.reply(`Welcome ${first_name || "there"}!`);
 });
 
 bot.use(notify);
@@ -122,5 +127,58 @@ bot.use(adminGroups);
 bot.use(adminHolidays);
 bot.use(adminFeedback);
 bot.use(adminEarnings);
+
+bot.catch((err) => {
+    const ctx = err.ctx;
+    console.error("Global error handler caught an error:", err.error);
+    
+    if (err.error instanceof GrammyError) {
+        console.error("Grammy error details:", {
+            description: err.error.description,
+            method: err.error.method,
+            parameters: err.error.parameters
+        });
+    } else if (err.error instanceof HttpError) {
+        console.error("HTTP error details:", {
+            error: err.error.error
+        });
+    }
+    
+    if (ctx.from) {
+        console.error("Error context - User:", {
+            userId: ctx.from.id,
+            username: ctx.from.username,
+            firstName: ctx.from.first_name
+        });
+    }
+    
+    if (ctx.message) {
+        console.error("Error context - Message:", {
+            text: ctx.message.text,
+            messageId: ctx.message.message_id,
+            chatId: ctx.chat?.id
+        });
+    }
+    
+    try {
+        ctx.reply(
+            "❌ An unexpected error occurred. Our team has been notified. Please try again later."
+        ).catch((replyError) => {
+            console.error("Failed to send error message to user:", replyError);
+        });
+    } catch (replyError) {
+        console.error("Failed to send error message to user:", replyError);
+    }
+});
+
+const stopOnSignal = async () => {
+    console.log("Stopping bot... finishing current tasks.");
+    await bot.stop();
+    console.log("Bot stopped.");
+    process.exit(0);
+};
+
+process.once("SIGINT", stopOnSignal);
+process.once("SIGTERM", stopOnSignal);
 
 bot.start();
