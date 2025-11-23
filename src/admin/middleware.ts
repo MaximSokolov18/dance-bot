@@ -17,12 +17,10 @@ adminMiddleware.use(async (ctx, next) => {
     
     if (!adminId) {
         console.error("ADMIN_TELEGRAM_ID is not set in environment variables");
-        await ctx.reply("❌ Admin access is not configured.");
         return;
     }
 
     if (ctx.from.id.toString() !== adminId) {
-        await ctx.reply("❌ Access denied. Admin privileges required.");
         console.warn(`Unauthorized admin command attempt by user ${ctx.from.id}`);
         return;
     }
