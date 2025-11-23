@@ -86,9 +86,9 @@ await bot.api.setMyCommands(COMMANDS, {
 });
 
 if (process.env.ADMIN_TELEGRAM_ID) {
-    // await bot.api.setMyCommands(ADMIN_COMMANDS, {
-    //     scope: {type: "chat", chat_id: parseInt(process.env.ADMIN_TELEGRAM_ID)}
-    // });
+    await bot.api.setMyCommands(ADMIN_COMMANDS, {
+        scope: {type: "chat", chat_id: parseInt(process.env.ADMIN_TELEGRAM_ID)}
+    });
 }
 
 bot.command("start", async (ctx) => {
