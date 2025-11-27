@@ -3,11 +3,12 @@ import {type MyContext} from "../bot";
 import type {Conversation} from "@grammyjs/conversations";
 import prisma from "../db";
 import {CONVERSATION_NAMES} from "../admin/constants";
+import {translate} from "../utils";
 
 
 async function feedbackConversation(conversation: Conversation<MyContext, MyContext>, ctx: MyContext) {
     if (!ctx.from) {
-        await ctx.reply("Unable to identify user. Please try again.");
+        await ctx.reply(translate("en", "common-unable-to-identify"));
         return;
     }
 
@@ -20,29 +21,27 @@ async function feedbackConversation(conversation: Conversation<MyContext, MyCont
                 firstName: ctx.from.first_name || null,
                 lastName: ctx.from.last_name || null,
                 username: ctx.from.username || null,
-                languageCode: ctx.from.language_code || null,
+                languageCode: ctx.from.language_code || "en",
                 allowNotifications: true,
             }
         });
     }
 
-    await ctx.reply(
-        "📝 Please share your feedback with us!\n\n" +
-        "Tell us about your experience, suggestions, or any concerns.\n\n" +
-        "Type /cancel to cancel at any time."
-    );
+    const userLang = user.languageCode || "en";
+
+    await ctx.reply(translate(userLang, "feedback-prompt"));
 
     const messageCtx = await conversation.wait();
 
     if (messageCtx.message?.text === "/cancel") {
-        await ctx.reply("❌ Feedback cancelled.");
+        await ctx.reply(translate(userLang, "feedback-cancelled"));
         return;
     }
 
     const feedbackMessage = messageCtx.message?.text;
 
     if (!feedbackMessage || feedbackMessage.trim().length === 0) {
-        await ctx.reply("❌ Feedback cannot be empty. Please try again with /feedback");
+        await ctx.reply(translate(userLang, "feedback-empty"));
         return;
     }
 
@@ -56,11 +55,7 @@ async function feedbackConversation(conversation: Conversation<MyContext, MyCont
         }
     });
 
-    await ctx.reply(
-        "✅ Thank you for your feedback!\n\n" +
-        "We appreciate you taking the time to share your thoughts with us. " +
-        "Your feedback helps us improve our service."
-    );
+    await ctx.reply(translate(userLang, "feedback-thanks"));
 
     if (process.env.ADMIN_TELEGRAM_ID) {
         const fullName = feedback.userName || "Anonymous";

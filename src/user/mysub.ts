@@ -1,9 +1,10 @@
 import {Composer} from "grammy/web";
 import prisma from "../db";
-import {GroupNameFormatMap, SubscriptionTypeFormatMap, TotalLessonsByType, WeekDayToNumber} from "../constants";
-import {calculateNextPaymentDate, calculateUsedLessons, formatDate} from "../utils";
+import {TotalLessonsByType, WeekDayToNumber} from "../constants";
+import {calculateNextPaymentDate, calculateUsedLessons, formatDate, translateDanceType, translateSubscriptionType, translateWeekday} from "../utils";
+import type {MyContext} from "../bot";
 
-export const mysub = new Composer();
+export const mysub = new Composer<MyContext>();
 
 mysub.command("mysub", async (ctx) => {
     if (!ctx.from) return;
@@ -30,12 +31,12 @@ mysub.command("mysub", async (ctx) => {
     });
 
     if (!user) {
-        await ctx.reply("You don't have an account yet. Use /start to register.");
+        await ctx.reply(ctx.t("mysub-no-account"));
         return;
     }
 
     if (user.subscriptions.length === 0) {
-        await ctx.reply("You don't have any active subscriptions yet. Contact your trainer for details.");
+        await ctx.reply(ctx.t("mysub-no-subscriptions"));
         return;
     }
 
@@ -83,16 +84,36 @@ mysub.command("mysub", async (ctx) => {
         });
 
         const message = [
-            "🎭 Your Subscription:",
-            `Type: ${SubscriptionTypeFormatMap[typeOfSubscription] || typeOfSubscription}`,
-            `Group: ${GroupNameFormatMap[group.name] || group.name}`,
-            `Lessons: ${remainingLessons > totalLessons ? totalLessons : remainingLessons} of ${totalLessons} remaining`,
-            `Notifications(demo): ${user.allowNotifications ? "Enabled ✅" : "Disabled ❌"}`,
-            (illnessCount ? `\nGet well soon 🤒\nMissed due to illness: ${illnessCount}\n` : ""),
-            `Class schedule:\n${group.classDays.map(cd => `• ${cd.weekday} at ${cd.time}`).join("\n")}`,
-            (affectedHolidays.length > 0 ? `\n📅 Holidays:\n${affectedHolidays.map(h => `• ${h.name}: ${formatDate(new Date(h.date))}`).join('\n')}\n` : ""),
-            `<b>Next payment/renewal:</b>\n${formatDate(nextPaymentDate)}`,
-        ].join("\n");
+            ctx.t("mysub-title"),
+            ctx.t("mysub-type", { type: translateSubscriptionType(typeOfSubscription, ctx) }),
+            ctx.t("mysub-group", { group: translateDanceType(group.name, ctx) }),
+            ctx.t("mysub-lessons", { 
+                remaining: remainingLessons > totalLessons ? totalLessons : remainingLessons, 
+                total: totalLessons 
+            }),
+            " ",
+            (illnessCount ? ctx.t("mysub-illness", { count: illnessCount }) : ""),
+            ctx.t("mysub-schedule") + "\n" + group.classDays.map(cd => 
+                ctx.t("mysub-schedule-item", { 
+                    weekday: translateWeekday(cd.weekday, ctx), 
+                    time: cd.time 
+                })
+            ).join("\n"),
+            " ",
+            (affectedHolidays.length > 0 ? 
+                ctx.t("mysub-holidays") + "\n" + affectedHolidays.map(h => 
+                    ctx.t("mysub-holiday-item", { 
+                        name: h.name, 
+                        date: formatDate(new Date(h.date)) 
+                    })
+                ).join('\n') : 
+                ""
+            ),
+            ctx.t("mysub-notifications", { 
+                status: user.allowNotifications ? ctx.t("mysub-notifications-enabled") : ctx.t("mysub-notifications-disabled") 
+            }),
+            ctx.t("mysub-next-payment", {date: formatDate(nextPaymentDate)}),
+        ].filter(line => line !== "").join("\n");
 
         await ctx.reply(message, {parse_mode: "HTML"});
     });

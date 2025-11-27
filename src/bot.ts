@@ -1,9 +1,11 @@
 import {Bot, Context, session, type SessionFlavor, GrammyError, HttpError} from "grammy/web";
 import {conversations, createConversation, type Conversation, type ConversationFlavor} from "@grammyjs/conversations";
 import {autoRetry} from "@grammyjs/auto-retry";
+import {I18n, type I18nFlavor} from "@grammyjs/i18n";
 import prisma from "./db";
-import {COMMANDS, ADMIN_COMMANDS} from "./constants";
+import {ADMIN_COMMANDS} from "./constants";
 import {CONVERSATION_NAMES} from "./admin/constants";
+import {getLocalizedCommands} from "./utils/commands";
 import {start, mysub, settings, feedback, feedbackConversation} from "./user";
 import {
     adminUsers,
@@ -39,7 +41,7 @@ import {initializeGlobalScheduler} from "./utils";
 
 interface SessionData {}
 
-export type MyContext = Context & ConversationFlavor<Context> & SessionFlavor<SessionData>;
+export type MyContext = Context & ConversationFlavor<Context> & SessionFlavor<SessionData> & I18nFlavor;
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
@@ -54,7 +56,32 @@ bot.api.config.use(autoRetry({
     maxDelaySeconds: 10,
 }));
 
+const i18n = new I18n<MyContext>({
+    defaultLocale: "en",
+    directory: "locales",
+    fluentBundleOptions: {
+        useIsolating: false
+    },
+    localeNegotiator: async (ctx) => {
+        if (!ctx.from) return "en";
+        
+        const user = await prisma.user.findUnique({
+            where: { telegramId: BigInt(ctx.from.id) },
+            select: { languageCode: true }
+        });
+        
+        return user?.languageCode || "en";
+    },
+    globalTranslationContext(ctx) {
+        return {
+            firstName: ctx.from?.first_name || "there",
+            username: ctx.from?.username || ""
+        };
+    }
+});
+
 bot.use(session({initial: () => ({})}));
+bot.use(i18n);
 bot.use(conversations());
 
 bot.use(createConversation(feedbackConversation, CONVERSATION_NAMES.FEEDBACK));
@@ -82,8 +109,19 @@ bot.use(createConversation(adminFeedbackListConversation, CONVERSATION_NAMES.ADM
 bot.use(createConversation(adminFeedbackViewConversation, CONVERSATION_NAMES.ADMIN_FEEDBACK_VIEW));
 bot.use(createConversation(adminEarningsCustomConversation, CONVERSATION_NAMES.ADMIN_EARNINGS_CUSTOM));
 
-await bot.api.setMyCommands(COMMANDS, {
-    scope: {type: "default"}
+await bot.api.setMyCommands(getLocalizedCommands("en"), {
+    scope: {type: "default"},
+    language_code: "en"
+});
+
+await bot.api.setMyCommands(getLocalizedCommands("es"), {
+    scope: {type: "default"},
+    language_code: "es"
+});
+
+await bot.api.setMyCommands(getLocalizedCommands("uk"), {
+    scope: {type: "default"},
+    language_code: "uk"
 });
 
 if (process.env.ADMIN_TELEGRAM_ID) {
@@ -138,7 +176,7 @@ bot.catch((err) => {
     
     try {
         ctx.reply(
-            "❌ An unexpected error occurred. Our team has been notified. Please try again later."
+            ctx.t("common-error")
         ).catch((replyError) => {
             console.error("Failed to send error message to user:", replyError);
         });

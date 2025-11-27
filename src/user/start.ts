@@ -26,7 +26,7 @@ start.command("start", async (ctx) => {
                     firstName: first_name || null,
                     lastName: last_name || null,
                     username: username || null,
-                    languageCode: language_code || null,
+                    languageCode: language_code || "en",
                     allowNotifications: true,
                 }
             });
@@ -60,9 +60,9 @@ start.command("start", async (ctx) => {
             }
         }
 
-        await ctx.reply(`Welcome ${first_name || "there"}!`);
+        await ctx.reply(ctx.t("start-welcome"));
     } catch (error) {
         console.error("Error in /start command:", error);
-        await ctx.reply("❌ Sorry, something went wrong. Please try again later.");
+        await ctx.reply(ctx.t("start-error"));
     }
 });

@@ -1,11 +1,20 @@
 import cron from "node-cron";
 import {Api} from "grammy/web";
 import {autoRetry} from "@grammyjs/auto-retry";
+import {I18n} from "@grammyjs/i18n";
 import prisma from "../db";
 import {updateNotificationSchedule} from "./updateNotificationSchedule";
 import {formatDate} from "./formatDate";
 
 let globalSchedulerInitialized = false;
+
+const notificationI18n = new I18n({
+    defaultLocale: "en",
+    directory: "locales",
+    fluentBundleOptions: {
+        useIsolating: false
+    }
+});
 
 export const initializeGlobalScheduler = () => {
     if (globalSchedulerInitialized) return;
@@ -62,7 +71,10 @@ export const initializeGlobalScheduler = () => {
                 const [subscription] = user.subscriptions;
                 
                 if (subscription && schedule.nextDue) {
-                    const message = `🔔 Don't forget to renew your subscription today (${formatDate(schedule.nextDue)}).`;
+                    const userLanguage = user.languageCode || "en";
+                    const message = notificationI18n.t(userLanguage, "notification-renewal", { 
+                        date: formatDate(schedule.nextDue) 
+                    });
                     
                     try {
                         await api.sendMessage(user.telegramId.toString(), message);
