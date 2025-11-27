@@ -4,7 +4,7 @@ import {autoRetry} from "@grammyjs/auto-retry";
 import prisma from "./db";
 import {COMMANDS, ADMIN_COMMANDS} from "./constants";
 import {CONVERSATION_NAMES} from "./admin/constants";
-import {mysub, notify, feedback, feedbackConversation} from "./user";
+import {mysub, settings, feedback, feedbackConversation} from "./user";
 import {
     adminUsers,
     adminSubscriptions,
@@ -35,6 +35,7 @@ import {
     adminFeedbackViewConversation,
     adminEarningsCustomConversation
 } from "./admin";
+import {initializeGlobalScheduler} from "./utils";
 
 interface SessionData {}
 
@@ -125,7 +126,7 @@ bot.command("start", async (ctx) => {
     }
 });
 
-bot.use(notify);
+bot.use(settings);
 bot.use(mysub);
 bot.use(feedback);
 
@@ -189,4 +190,5 @@ const stopOnSignal = async () => {
 process.once("SIGINT", stopOnSignal);
 process.once("SIGTERM", stopOnSignal);
 
+initializeGlobalScheduler();
 bot.start();

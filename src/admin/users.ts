@@ -99,7 +99,7 @@ export async function adminUserViewConversation(conversation: Conversation<MyCon
     const userId = parseInt(userIdCtx.message?.text || "");
     
     if (isNaN(userId)) {
-        await ctx.reply("❌ Invalid User ID. Please use /admin_user_view to try again.");
+        await ctx.reply("❌ Invalid User ID. Please use another ID");
         return;
     }
 

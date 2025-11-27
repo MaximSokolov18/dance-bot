@@ -1,7 +1,7 @@
 import type {SubscriptionType, Weekday, DanceType} from "@prisma/client";
 
 export const COMMANDS = [
-    {command: "notify", description: "Toggle subscription notifications"},
+    {command: "settings", description: "Manage bot settings (e.g. notifications)"},
     {command: "mysub", description: "View my subscription details"},
     {command: "feedback", description: "Provide feedback or report an issue"},
 ];

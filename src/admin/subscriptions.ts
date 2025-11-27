@@ -505,7 +505,7 @@ export async function adminSubscriptionUpdateConversation(conversation: Conversa
 }
 
 export async function adminSubscriptionDeleteConversation(conversation: Conversation<MyContext, MyContext>, ctx: MyContext) {
-    await ctx.reply("🗑 <b>Delete Subscription</b>\n\n⚠️ WARNING: This will permanently delete the subscription record.\nConsider deactivating instead (use /admin_subscription_update).\n\nEnter Subscription ID to delete:\n\nType /cancel to abort.", {parse_mode: "HTML"});
+    await ctx.reply("🗑 <b>Delete Subscription</b>\n\n⚠️ WARNING: This will permanently delete the subscription record.\nConsider deactivating instead.\n\nEnter Subscription ID to delete:\n\nType /cancel to abort.", {parse_mode: "HTML"});
 
     const subIdCtx = await conversation.wait();
     if (subIdCtx.message?.text === "/cancel") {

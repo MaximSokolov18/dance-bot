@@ -193,7 +193,7 @@ export async function adminGroupCreateConversation(conversation: Conversation<My
     });
 
     if (existingGroup) {
-        await ctx.reply(`⚠️ Group for ${GroupNameFormatMap[danceType]} already exists (ID: ${existingGroup.id}).\nUse /admin_group_view ${existingGroup.id} to view it.`);
+        await ctx.reply(`⚠️ Group for ${GroupNameFormatMap[danceType]} already exists (ID: ${existingGroup.id}).\nUse /admin_group ${existingGroup.id} to view it.`);
         return;
     }
 
@@ -205,7 +205,7 @@ export async function adminGroupCreateConversation(conversation: Conversation<My
         let message = `✅ <b>Group Created Successfully!</b>\n\n`;
         message += `<b>ID:</b> ${group.id}\n`;
         message += `<b>Name:</b> ${GroupNameFormatMap[group.name]}\n\n`;
-        message += `ℹ️ Use /admin_classday_add to add class schedule.`;
+        message += `ℹ️ Use /admin_group to add class schedule.`;
 
         await ctx.reply(message, {parse_mode: "HTML"});
     } catch (error) {

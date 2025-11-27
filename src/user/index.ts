@@ -1,3 +1,3 @@
 export {mysub} from "./mysub";
-export {notify} from "./notify";
+export {settings} from "./settings";
 export {feedback, feedbackConversation} from "./feedback";
