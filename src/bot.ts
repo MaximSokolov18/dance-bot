@@ -4,7 +4,7 @@ import {autoRetry} from "@grammyjs/auto-retry";
 import prisma from "./db";
 import {COMMANDS, ADMIN_COMMANDS} from "./constants";
 import {CONVERSATION_NAMES} from "./admin/constants";
-import {mysub, settings, feedback, feedbackConversation} from "./user";
+import {start, mysub, settings, feedback, feedbackConversation} from "./user";
 import {
     adminUsers,
     adminSubscriptions,
@@ -92,40 +92,7 @@ if (process.env.ADMIN_TELEGRAM_ID) {
     });
 }
 
-bot.command("start", async (ctx) => {
-    if (!ctx.from) return;
-
-    try {
-        const {
-            id,
-            first_name,
-            last_name,
-            username,
-            language_code
-        } = ctx.from;
-
-        let user = await prisma.user.findUnique({where: {telegramId: BigInt(id)}});
-
-        if (!user) {
-            user = await prisma.user.create({
-                data: {
-                    telegramId: BigInt(id),
-                    firstName: first_name || null,
-                    lastName: last_name || null,
-                    username: username || null,
-                    languageCode: language_code || null,
-                    allowNotifications: true,
-                }
-            });
-        }
-
-        await ctx.reply(`Welcome ${first_name || "there"}!`);
-    } catch (error) {
-        console.error("Error in /start command:", error);
-        await ctx.reply("❌ Sorry, something went wrong. Please try again later.");
-    }
-});
-
+bot.use(start);
 bot.use(settings);
 bot.use(mysub);
 bot.use(feedback);
