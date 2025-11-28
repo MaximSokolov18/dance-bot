@@ -51,10 +51,10 @@ Apreciamos que te hayas tomado el tiempo de compartir tus pensamientos con nosot
 settings-title = ⚙️ <b>Configuración</b>
 
 settings-section-notifications = <b>Recordatorios de pago:</b> { $status }
-settings-notify-enabled = ✅ Activadas
+settings-notify-enabled = Activadas
 
 💡 Recibirás un recordatorio sobre la renovación de tu suscripción a las 11:00 AM el día de tu entrenamiento
-settings-notify-disabled = ❌ Desactivadas
+settings-notify-disabled = Desactivadas
 settings-section-language = <b>Idioma:</b> { $language }
 
 settings-btn-notify-on = 🔔 Activar recordatorios

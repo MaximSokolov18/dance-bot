@@ -51,10 +51,10 @@ feedback-thanks = ✅ Дякуємо за ваш відгук!
 settings-title = ⚙️ <b>Налаштування</b>
 
 settings-section-notifications = <b>Нагадування про оплату:</b> { $status }
-settings-notify-enabled = ✅ Увімкнено
+settings-notify-enabled = Увімкнено
 
 💡 Ви отримаєте нагадування про продовження підписки о 11:00 ранку в день вашого тренування
-settings-notify-disabled = ❌ Вимкнено
+settings-notify-disabled = Вимкнено
 settings-section-language = <b>Мова:</b> { $language }
 
 settings-btn-notify-on = 🔔 Увімкнути нагадування

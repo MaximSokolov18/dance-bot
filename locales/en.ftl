@@ -51,10 +51,10 @@ We appreciate you taking the time to share your thoughts with us. Your feedback 
 settings-title = ⚙️ <b>Settings</b>
 
 settings-section-notifications = <b>Payment reminders:</b> { $status }
-settings-notify-enabled = ✅ Enabled
+settings-notify-enabled = Enabled
 
 💡 You'll receive a reminder about renewing your subscription at 11:00 AM on your training day
-settings-notify-disabled = ❌ Disabled
+settings-notify-disabled = Disabled
 settings-section-language = <b>Language:</b> { $language }
 
 settings-btn-notify-on = 🔔 Enable reminders
