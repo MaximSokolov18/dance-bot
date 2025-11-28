@@ -20,8 +20,8 @@ mysub-type = Тип: { $type }
 mysub-group = Група: { $group }
 mysub-lessons = Заняття: { $remaining } з { $total } залишилось
 mysub-notifications = <b>Нагадування про оплату:</b> { $status }
-mysub-notifications-enabled = Увімкнено ✅
-mysub-notifications-disabled = Вимкнено ❌
+mysub-notifications-enabled = Увімкнено
+mysub-notifications-disabled = Вимкнено
 mysub-illness = 
 
 Одужуйте швидше 🤒

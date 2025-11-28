@@ -104,7 +104,7 @@ mysub.command("mysub", async (ctx) => {
                 ctx.t("mysub-holidays") + "\n" + affectedHolidays.map(h => 
                     ctx.t("mysub-holiday-item", { 
                         name: h.name, 
-                        date: formatDate(new Date(h.date)) 
+                        date: formatDate(new Date(h.date), user.languageCode || 'en') 
                     })
                 ).join('\n') : 
                 ""
@@ -112,7 +112,7 @@ mysub.command("mysub", async (ctx) => {
             ctx.t("mysub-notifications", { 
                 status: user.allowNotifications ? ctx.t("mysub-notifications-enabled") : ctx.t("mysub-notifications-disabled") 
             }),
-            ctx.t("mysub-next-payment", {date: formatDate(nextPaymentDate)}),
+            ctx.t("mysub-next-payment", {date: formatDate(nextPaymentDate, user.languageCode || 'en')}),
         ].filter(line => line !== "").join("\n");
 
         await ctx.reply(message, {parse_mode: "HTML"});

@@ -20,8 +20,8 @@ mysub-type = Type: { $type }
 mysub-group = Group: { $group }
 mysub-lessons = Lessons: { $remaining } of { $total } remaining
 mysub-notifications = <b>Payment reminders:</b> { $status }
-mysub-notifications-enabled = Enabled ✅
-mysub-notifications-disabled = Disabled ❌
+mysub-notifications-enabled = Enabled
+mysub-notifications-disabled = Disabled
 mysub-illness = 
 
 Get well soon 🤒
