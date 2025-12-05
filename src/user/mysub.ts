@@ -105,7 +105,7 @@ mysub.command("mysub", async (ctx) => {
                         name: h.name, 
                         date: formatDate(new Date(h.date), user.languageCode || 'en') 
                     })
-                ).join('\n') : 
+                ).join('\n') + "\n" : 
                 ""
             ),
             ctx.t("mysub-notifications", { 
