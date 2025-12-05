@@ -4,8 +4,9 @@ import {adminMiddleware} from "./middleware";
 import prisma from "../db";
 import type {Conversation} from "@grammyjs/conversations";
 import {SubscriptionType, PaymentType} from "@prisma/client";
-import {SubscriptionTypeFormatMap} from "../constants";
+import {SubscriptionTypeFormatMap, TotalLessonsByType} from "../constants";
 import {ADMIN_SUBSCRIPTION_CALLBACKS, SUBSCRIPTION_FILTERS, SUBSCRIPTION_UPDATE_FIELDS, CONVERSATION_NAMES} from "./constants";
+import {calculateUsedLessons, calculateNextPaymentDate, formatDate} from "../utils/index.js";
 
 export const adminSubscriptions = new Composer<MyContext>();
 adminSubscriptions.use(adminMiddleware);
@@ -95,14 +96,14 @@ export async function adminSubscriptionsListConversation(conversation: Conversat
     await ctx.reply("📋 Filter by status:", {reply_markup: keyboard});
 
     const choiceCtx = await conversation.wait();
-    
+
     if (choiceCtx.message?.text === "/cancel") {
         await ctx.reply("❌ Operation cancelled.");
         return;
     }
 
     const choice = choiceCtx.callbackQuery?.data || choiceCtx.message?.text;
-    
+
     if (choiceCtx.callbackQuery) {
         await choiceCtx.answerCallbackQuery();
     }
@@ -147,29 +148,69 @@ export async function adminSubscriptionViewConversation(conversation: Conversati
             return;
         }
 
+        const holidays = await prisma.holiday.findMany({
+            where: {
+                date: {
+                    gte: subscription.startDate
+                }
+            }
+        });
+
+
+        const totalLessons = TotalLessonsByType[subscription.typeOfSubscription];
+        const usedLessons = calculateUsedLessons(
+            subscription.startDate,
+            subscription.group.classDays,
+            holidays
+        );
+        const remainingLessons = Math.max(0, totalLessons - usedLessons + subscription.illnessCount);
+
+        const nextPaymentDate = calculateNextPaymentDate(
+            subscription.group.classDays,
+            remainingLessons,
+            holidays
+        );
+
+        let lessonInfo = 'N/A';
+        if (subscription.illnessCount > 0) {
+            lessonInfo = `${remainingLessons} / ${totalLessons} (+${subscription.illnessCount} illness days)`;
+        } else {
+            lessonInfo = `${remainingLessons} / ${totalLessons}`;
+        }
+
         let message = `📊 <b>Subscription Details</b>\n\n`;
         message += `<b>ID:</b> <code>${subscription.id}</code>\n`;
         message += `<b>Status:</b> ${subscription.isActive ? '✅ Active' : '❌ Inactive'}\n\n`;
-        
+
         message += `<b>User Information:</b>\n`;
         message += `  ID: ${subscription.userId}\n`;
         message += `  Name: ${subscription.user.firstName || ''} ${subscription.user.lastName || 'N/A'}\n`;
         message += `  Username: @${subscription.user.username || 'N/A'}\n`;
         message += `  Telegram ID: <code>${subscription.user.telegramId}</code>\n\n`;
-        
+
         message += `<b>Subscription Details:</b>\n`;
         message += `  Type: ${SubscriptionTypeFormatMap[subscription.typeOfSubscription]}\n`;
         message += `  Group: ${subscription.group.name}\n`;
-        message += `  Class Days: ${subscription.group.classDays.map(cd => `${cd.weekday} ${cd.time}`).join(', ')}\n\n`;
-        
+        message += `  Class Days: ${subscription.group.classDays.map(cd => `${cd.weekday} ${cd.time}`).join(', ')}\n`;
+        message += `  Remaining Lessons: ${lessonInfo}`;
+        if (remainingLessons === 0 && subscription.group.classDays.length > 0) {
+            message += ` ⚠️`;
+        }
+        message += `\n\n`;
+
         message += `<b>Payment Information:</b>\n`;
         message += `  Amount: €${subscription.amountOfPayment}\n`;
         message += `  Method: ${subscription.typeOfPayment}\n`;
         message += `  Payment Date: ${subscription.paymentDate.toLocaleDateString()}\n\n`;
-        
+
         message += `<b>Dates:</b>\n`;
-        message += `  Start: ${subscription.startDate.toLocaleDateString()}\n\n`;
-        
+        message += `  Start: ${subscription.startDate.toLocaleDateString()}\n`;
+        if (nextPaymentDate) {
+            const formattedNextDate = formatDate(nextPaymentDate);
+            message += `  Next Payment Due: ${formattedNextDate}\n`;
+        }
+        message += `\n`;
+
         message += `<b>Additional:</b>\n`;
         message += `  Illness Days: ${subscription.illnessCount}\n`;
         message += `  Created: ${subscription.createdAt.toLocaleString()}\n`;
@@ -328,7 +369,7 @@ export async function adminSubscriptionCreateConversation(conversation: Conversa
         }
     }
 
-    const isActiveMessage = activeSubscriptionInGroup 
+    const isActiveMessage = activeSubscriptionInGroup
         ? "⚠️ User has active subscription for this group. Set this as active? (yes/no):"
         : "Set as active? (yes/no):";
     await ctx.reply(isActiveMessage);
@@ -487,7 +528,7 @@ export async function adminSubscriptionUpdateConversation(conversation: Conversa
                         return;
                     }
                 }
-                
+
                 const updated = await prisma.subscription.update({
                     where: {id: subId},
                     data: {isActive: !subscription.isActive}
