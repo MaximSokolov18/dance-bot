@@ -29,8 +29,7 @@ mysub-illness =
 
 mysub-schedule = Розклад занять:
 mysub-schedule-item = • { $weekday } о { $time }
-mysub-holidays = 
-📅 Святкові дні:
+mysub-holidays = 📅 Святкові дні:
 mysub-holiday-item = • { $name }: { $date }
 mysub-next-payment = <b>Наступний платіж/продовження:</b>
 { $date }

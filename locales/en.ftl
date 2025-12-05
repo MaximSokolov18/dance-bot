@@ -29,8 +29,7 @@ Missed due to illness: { $count }
 
 mysub-schedule = Class schedule:
 mysub-schedule-item = • { $weekday } at { $time }
-mysub-holidays = 
-📅 Holidays:
+mysub-holidays = 📅 Holidays:
 mysub-holiday-item = • { $name }: { $date }
 mysub-next-payment = <b>Next payment/renewal:</b>
 { $date }

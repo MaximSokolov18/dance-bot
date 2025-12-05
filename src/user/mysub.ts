@@ -99,9 +99,8 @@ mysub.command("mysub", async (ctx) => {
                     time: cd.time 
                 })
             ).join("\n"),
-            " ",
             (affectedHolidays.length > 0 ? 
-                ctx.t("mysub-holidays") + "\n" + affectedHolidays.map(h => 
+                "\n" + ctx.t("mysub-holidays") + "\n" + affectedHolidays.map(h => 
                     ctx.t("mysub-holiday-item", { 
                         name: h.name, 
                         date: formatDate(new Date(h.date), user.languageCode || 'en') 

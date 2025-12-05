@@ -29,8 +29,7 @@ Faltas por enfermedad: { $count }
 
 mysub-schedule = Horario de clases:
 mysub-schedule-item = • { $weekday } a las { $time }
-mysub-holidays = 
-📅 Días festivos:
+mysub-holidays = 📅 Días festivos:
 mysub-holiday-item = • { $name }: { $date }
 mysub-next-payment = <b>Próximo pago/renovación:</b>
 { $date }
